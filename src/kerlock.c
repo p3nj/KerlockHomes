@@ -1,4 +1,5 @@
 #include "kerlock_common.h"
+#include "kerlock_module.h"
 #include <dirent.h>
 #include <dlfcn.h>
 #include <stdio.h>
