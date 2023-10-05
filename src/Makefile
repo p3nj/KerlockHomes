@@ -1,7 +1,8 @@
 OUTPUT := .output
+BIN := bin
 CLANG ?= clang-11
+CC := $(CLANG)
 LLVM_STRIP ?= llvm-strip-11
-BPFTOOL ?= $(abspath ../tools/bpftool)
 LIBBPF_SRC := $(abspath ../libbpf/src)
 LIBBPF_OBJ := $(abspath $(OUTPUT)/libbpf.a)
 INCLUDES := -I$(OUTPUT)
@@ -13,7 +14,10 @@ APPS = kerlockhomes
 MODULES = $(patsubst ../modules/%.bpf.c,bin/%.bpf.o,$(wildcard ../modules/*.bpf.c))
 
 
-all: $(APPS) $(MODULES)
+all: $(BIN) $(OUTPUT) $(APPS) $(MODULES)
+
+$(BIN):
+	mkdir -p $(BIN)
 
 $(OUTPUT):
 	mkdir -p $(OUTPUT)
@@ -29,19 +33,15 @@ $(LIBBPF_OBJ): $(wildcard $(LIBBPF_SRC)/*.[ch] $(LIBBPF_SRC)/Makefile) | $(OUTPU
 		    INCLUDEDIR= LIBDIR= UAPIDIR=			      \
 		    install
 
-#$(OUTPUT)/bin/%.bpf.o: ../modules/%.bpf.c $(LIBBPF_OBJ)
-#	$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) $(INCLUDES) -c $< -o $@
-#	$(LLVM_STRIP) -g $@
-#
-bin/%.bpf.o: ../modules/%.bpf.c $(LIBBPF_OBJ)
+$(BIN)/%.bpf.o: ../modules/%.bpf.c $(LIBBPF_OBJ)
 	$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) $(INCLUDES) -c $< -o $@
 	$(LLVM_STRIP) -g $@
 
-
 kerlockhomes: kerlockhomes.c $(LIBBPF_OBJ)
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o bin/$@ -lelf -lz
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $(BIN)/$@ -lelf -lz
+
 
 clean:
-	rm -rf $(OUTPUT) bin/
+	rm -rf $(OUTPUT) $(BIN)
 
 .PHONY: all clean
