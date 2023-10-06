@@ -34,7 +34,7 @@ $(LIBBPF_OBJ): $(wildcard $(LIBBPF_SRC)/*.[ch] $(LIBBPF_SRC)/Makefile) | $(OUTPU
 		    install
 
 $(BIN)/%.bpf.o: ../modules/%.bpf.c $(LIBBPF_OBJ)
-	$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) $(INCLUDES) -c $< -o $@
+	$(CLANG) -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) $(INCLUDES) -I../modules -c $< -o $@
 	$(LLVM_STRIP) -g $@
 
 kerlockhomes: kerlockhomes.c $(LIBBPF_OBJ)
