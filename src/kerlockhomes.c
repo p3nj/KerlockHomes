@@ -86,11 +86,19 @@ int main() {
     while ((entry = readdir(dp))) {
         if (stat(entry->d_name, &st) == 0 && S_ISREG(st.st_mode) &&
             strstr(entry->d_name, ".bpf.o") != NULL) {
-            printf("Loading %s...\n", entry->d_name);
-            if (load_bpf_program(entry->d_name) != 0) {
-                fprintf(stderr, "Failed to load %s, continuing...\n", entry->d_name);
-            }
+            file_names[file_count++] = strdup(entry->d_name);
         }
+    }
+
+    // Sort the file names
+    qsort(file_names, file_count, sizeof(char *), compare);
+
+    for (int i = 0; i < file_count; ++i) {
+        printf("Loading %s...\n", file_names[i]);
+        if (load_bpf_program(file_names[i]) != 0) {
+            fprintf(stderr, "Failed to load %s, continuing...\n", file_names[i]);
+        }
+        free(file_names[i]);
     }
 
     closedir(dp);
