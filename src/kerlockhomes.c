@@ -90,6 +90,12 @@ int main() {
         }
     }
 
+    // Check if the number of files exceeds the maximum limit
+    if (file_count > MAX_BPF_OBJECTS) {
+        fprintf(stderr, "Error: Too many BPF objects to load. The maximum limit is %d.\n", MAX_BPF_OBJECTS);
+        return 1;
+    }
+
     // Sort the file names
     qsort(file_names, file_count, sizeof(char *), compare);
 
